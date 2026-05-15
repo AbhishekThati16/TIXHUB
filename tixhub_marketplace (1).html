@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #040812;
+    --bg2: #080f1f;
+    --blue: #4F46E5;
+    --purple: #9333EA;
+    --cyan: #22D3EE;
+    --pink: #EC4899;
+    --green: #10B981;
+    --gold: #F59E0B;
+    --glass: rgba(255,255,255,0.05);
+    --glass2: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.1);
+    --border2: rgba(79,70,229,0.4);
+    --text: #F1F5F9;
+    --muted: #94A3B8;
+    --dim: #475569;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* CANVAS BACKGROUND */
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* LAYOUT */
+  .app { position: relative; z-index: 1; }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: rgba(4,8,18,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, var(--blue), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    cursor: pointer;
+  }
+
+  .logo span { color: var(--pink); -webkit-text-fill-color: var(--pink); }
+
+  nav .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  nav .nav-links li {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  nav .nav-links li:hover, nav .nav-links li.active { color: var(--cyan); }
+
+  .nav-actions { display: flex; gap: 10px; align-items: center; }
+
+  .btn-ghost {
+    padding: 6px 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    background: transparent;
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+
+  .btn-primary {
+    padding: 6px 18px;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== LANDING PAGE ===== */
+  .hero {
+    min-height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem 2rem;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    background: rgba(79,70,229,0.15);
+    border: 0.5px solid rgba(79,70,229,0.4);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: pulse-border 2s ease infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { border-color: rgba(79,70,229,0.4); }
+    50% { border-color: rgba(34,211,238,0.6); }
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: blink 1.2s ease infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  h1.hero-title {
+    font-size: clamp(42px, 8vw, 80px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 1.5rem;
+    max-width: 900px;
+  }
+
+  .grad-text {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 40%, var(--purple) 70%, var(--pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 4rem;
+  }
+
+  .btn-hero {
+    padding: 14px 32px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: all 0.25s;
+    border: none;
+  }
+
+  .btn-hero-primary {
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    color: white;
+  }
+
+  .btn-hero-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+
+  .btn-hero-outline {
+    background: transparent;
+    color: var(--cyan);
+    border: 0.5px solid rgba(34,211,238,0.4) !important;
+  }
+
+  .btn-hero-outline:hover { background: rgba(34,211,238,0.08); transform: translateY(-2px); }
+
+  /* STATS ROW */
+  .stats-row {
+    display: flex;
+    gap: 2px;
+    background: var(--border);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .stat-item {
+    flex: 1;
+    padding: 20px 28px;
+    background: var(--glass);
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, var(--cyan), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  /* FLOATING TICKET CARDS */
+  .tickets-showcase {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto 5rem;
+    padding: 0 1rem;
+  }
+
+  .ticket-card {
+    position: relative;
+    background: var(--glass);
+    border: 0.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .ticket-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(79,70,229,0.15);
+  }
+
+  .ticket-card-img {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ticket-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0.6;
+  }
+
+  .ticket-body { padding: 14px; }
+
+  .ticket-event {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ticket-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .ticket-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ticket-price {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: -0.5px;
+  }
+
+  .ticket-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .badge-live { background: rgba(16,185,129,0.15); color: var(--green); border: 0.5px solid rgba(16,185,129,0.3); }
+  .badge-bid { background: rgba(245,158,11,0.15); color: var(--gold); border: 0.5px solid rgba(245,158,11,0.3); }
+  .badge-hot { background: rgba(236,72,153,0.15); color: var(--pink); border: 0.5px solid rgba(236,72,153,0.3); }
+
+  /* ===== MARKETPLACE PAGE ===== */
+  .page-header {
+    padding: 3rem 2rem 1.5rem;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .page-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+
+  .page-sub { font-size: 14px; color: var(--muted); }
+
+  .market-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 200px);
+  }
+
+  /* FILTERS SIDEBAR */
+  .filters-sidebar {
+    padding: 1.5rem;
+    border-right: 0.5px solid var(--border);
+    background: var(--glass);
+  }
+
+  .filter-section { margin-bottom: 1.5rem; }
+
+  .filter-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .filter-tag {
+    display: inline-block;
+    padding: 5px 12px;
+    margin: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--glass2);
+    border: 0.5px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-tag.active, .filter-tag:hover {
+    color: var(--cyan);
+    border-color: rgba(34,211,238,0.4);
+    background: rgba(34,211,238,0.08);
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--glass2);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--border2); }
+  .search-input::placeholder { color: var(--dim); }
+
+  .price-range {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .price-input {
+    flex: 1;
+    padding: 8px 10px;
+    background: var(--glass2);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    outline: none;
+  }
+
+  /* MARKET GRID */
+  .market-grid-area { padding: 1.5rem; }
+
+  .market-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .results-count {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .results-count strong { color: var(--text); }
+
+  .sort-select {
+    padding: 7px 12px;
+    background: var(--glass2);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .market-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  .market-card {
+    background: var(--glass);
+    border: 0.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .market-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-3px);
+  }
+
+  .market-card-img {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    position: relative;
+  }
+
+  .live-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .market-card-body { padding: 12px; }
+  .mc-event { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+  .mc-date { font-size: 10px; color: var(--muted); font-family: 'Space Mono', monospace; margin-bottom: 10px; }
+
+  .mc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mc-price { font-size: 16px; font-weight: 800; color: var(--cyan); letter-spacing: -0.5px; }
+
+  .bid-btn {
+    padding: 4px 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--purple);
+    background: rgba(147,51,234,0.12);
+    border: 0.5px solid rgba(147,51,234,0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .bid-btn:hover { background: rgba(147,51,234,0.22); }
+
+  /* ===== TICKET DETAIL PAGE ===== */
+  .detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .detail-event-banner {
+    height: 220px;
+    border-radius: 16px;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a0533, #050816);
+  }
+
+  .detail-banner-text h2 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .detail-banner-sub { font-size: 13px; color: var(--muted); }
+
+  .seat-viz {
+    background: var(--glass);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .seat-viz h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+
+  .stage {
+    background: rgba(79,70,229,0.15);
+    border: 0.5px solid rgba(79,70,229,0.4);
+    border-radius: 50px;
+    text-align: center;
+    padding: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .seats-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .seat {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .seat.available { background: rgba(79,70,229,0.3); border: 0.5px solid rgba(79,70,229,0.5); }
+  .seat.taken { background: rgba(255,255,255,0.08); border: 0.5px solid var(--border); cursor: default; }
+  .seat.selected { background: var(--cyan); border-color: var(--cyan); transform: scale(1.1); }
+  .seat:hover.available { background: rgba(34,211,238,0.4); border-color: var(--cyan); }
+
+  .seat-legend {
+    display: flex;
+    gap: 14px;
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  /* PURCHASE PANEL */
+  .purchase-panel {
+    background: var(--glass);
+    border: 0.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    height: fit-content;
+    position: sticky;
+    top: 80px;
+  }
+
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+  }
+
+  .price-display {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    color: var(--cyan);
+    margin-bottom: 4px;
+  }
+
+  .price-orig {
+    font-size: 13px;
+    color: var(--dim);
+    text-decoration: line-through;
+    margin-bottom: 1.5rem;
+  }
+
+  .bid-section {
+    background: rgba(245,158,11,0.08);
+    border: 0.5px solid rgba(245,158,11,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 1.5rem;
+  }
+
+  .bid-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .bid-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .bid-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    padding: 4px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+  }
+
+  .bid-user { color: var(--muted); }
+  .bid-amount { color: var(--text); font-weight: 700; }
+  .bid-time { color: var(--dim); font-size: 10px; }
+
+  .your-bid-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .bid-input-field {
+    flex: 1;
+    padding: 9px 12px;
+    background: rgba(245,158,11,0.08);
+    border: 0.5px solid rgba(245,158,11,0.3);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    outline: none;
+  }
+
+  .place-bid-btn {
+    padding: 9px 16px;
+    background: linear-gradient(135deg, var(--gold), #d97706);
+    border: none;
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1c1400;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: opacity 0.2s;
+  }
+
+  .place-bid-btn:hover { opacity: 0.85; }
+
+  .buy-now-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+
+  .buy-now-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+  .secure-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--dim);
+    text-align: center;
+  }
+
+  /* ===== DASHBOARD PAGE ===== */
+  .dash-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 60px);
+  }
+
+  .dash-sidebar {
+    background: var(--glass);
+    border-right: 0.5px solid var(--border);
+    padding: 1.5rem 1rem;
+  }
+
+  .user-avatar-section {
+    text-align: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  .user-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+    margin: 0 auto 10px;
+  }
+
+  .user-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .user-level {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .dash-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+
+  .dash-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .dash-nav-item:hover, .dash-nav-item.active {
+    color: var(--text);
+    background: rgba(79,70,229,0.12);
+  }
+
+  .dash-nav-item.active { color: var(--cyan); }
+
+  .dash-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  /* MAIN CONTENT */
+  .dash-main { padding: 2rem; overflow: auto; }
+
+  .dash-greeting {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 1.5rem;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .metric-card {
+    background: var(--glass2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .metric-value {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+
+  .metric-change {
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .change-up { color: var(--green); }
+  .change-down { color: var(--pink); }
+
+  .metric-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 32px;
+    opacity: 0.12;
+  }
+
+  /* CHART */
+  .chart-section {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 16px;
+    margin-bottom: 2rem;
+  }
+
+  .chart-card {
+    background: var(--glass2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .chart-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1.5rem;
+  }
+
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 140px;
+    padding: 0 4px;
+  }
+
+  .bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+  .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .bar:hover { opacity: 0.75; }
+
+  .bar-label { font-size: 9px; color: var(--dim); font-family: 'Space Mono', monospace; }
+
+  /* ACTIVITY FEED */
+  .activity-feed {
+    background: var(--glass2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.04);
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .act-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .act-body { flex: 1; }
+  .act-text { font-size: 12px; color: var(--text); margin-bottom: 2px; }
+  .act-time { font-size: 10px; color: var(--dim); font-family: 'Space Mono', monospace; }
+  .act-amount { font-size: 13px; font-weight: 700; color: var(--green); }
+
+  /* WALLET CARD */
+  .wallet-card {
+    background: linear-gradient(135deg, rgba(79,70,229,0.2), rgba(147,51,234,0.15));
+    border: 0.5px solid rgba(79,70,229,0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .wallet-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .wallet-balance {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+
+  .wallet-actions { display: flex; gap: 10px; }
+
+  .wallet-btn {
+    flex: 1;
+    padding: 9px;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: none;
+    transition: opacity 0.2s;
+  }
+
+  .wallet-btn:hover { opacity: 0.8; }
+
+  .btn-deposit { background: white; color: #1e1b4b; }
+  .btn-withdraw { background: rgba(255,255,255,0.15); color: white; }
+
+  /* SELL PAGE */
+  .sell-layout {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2.5rem;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .step-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .step-circle.done { background: var(--blue); color: white; }
+  .step-circle.current { background: var(--cyan); color: #040812; }
+  .step-circle.pending { background: var(--glass2); color: var(--dim); border: 0.5px solid var(--border); }
+
+  .step-line { flex: 1; height: 0.5px; background: var(--border); margin: 0 4px; }
+  .step-line.done { background: var(--blue); }
+
+  .step-name { font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; }
+  .step-name.current { color: var(--cyan); }
+
+  .form-section {
+    background: var(--glass);
+    border: 0.5px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--border2); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .drop-zone {
+    border: 1.5px dashed var(--border2);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(79,70,229,0.04);
+  }
+
+  .drop-zone:hover { background: rgba(79,70,229,0.08); border-color: var(--cyan); }
+
+  .drop-icon { font-size: 40px; margin-bottom: 12px; }
+  .drop-text { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .drop-sub { font-size: 12px; color: var(--dim); }
+
+  .ai-price-panel {
+    background: linear-gradient(135deg, rgba(147,51,234,0.1), rgba(79,70,229,0.08));
+    border: 0.5px solid rgba(147,51,234,0.3);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .ai-icon-circle {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(147,51,234,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .ai-label { font-size: 10px; color: var(--purple); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .ai-price { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+  .ai-range { font-size: 11px; color: var(--muted); }
+
+  /* NOTIFICATION TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--glass2);
+    border: 0.5px solid var(--border2);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 320px;
+  }
+
+  .toast.show { transform: translateX(0); }
+
+  .toast-icon { font-size: 20px; flex-shrink: 0; }
+  .toast-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .toast-msg { font-size: 11px; color: var(--muted); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .fade-up { animation: fadeUp 0.5s ease forwards; }
+
+  .glow-blue { color: var(--blue); }
+  .glow-cyan { color: var(--cyan); }
+  .glow-purple { color: var(--purple); }
+  .glow-pink { color: var(--pink); }
+
+  /* RESPONSIVE */
+  @media (max-width: 680px) {
+    .tickets-showcase { grid-template-columns: 1fr 1fr; }
+    .market-layout { grid-template-columns: 1fr; }
+    .filters-sidebar { display: none; }
+    .metrics-grid { grid-template-columns: repeat(2,1fr); }
+    .chart-section { grid-template-columns: 1fr; }
+    .detail-layout { grid-template-columns: 1fr; }
+    .dash-layout { grid-template-columns: 1fr; }
+    .dash-sidebar { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+    nav .nav-links { display: none; }
+  }
+</style>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="app">
+  <!-- NAV -->
+  <nav>
+    <div class="logo" onclick="navigate('landing')">Tix<span>Hub</span></div>
+    <ul class="nav-links">
+      <li id="nav-landing" onclick="navigate('landing')">Home</li>
+      <li id="nav-market" onclick="navigate('market')">Marketplace</li>
+      <li id="nav-detail" onclick="navigate('detail')">Live Auction</li>
+      <li id="nav-sell" onclick="navigate('sell')">Sell</li>
+      <li id="nav-dash" onclick="navigate('dash')">Dashboard</li>
+    </ul>
+    <div class="nav-actions">
+      <div class="live-dot" style="margin-right:4px"></div>
+      <span style="font-size:11px;color:var(--green);font-weight:700;margin-right:8px;">3,241 LIVE</span>
+      <button class="btn-ghost" onclick="navigate('dash')">Account</button>
+      <button class="btn-primary" onclick="navigate('sell')">+ Sell Tickets</button>
+    </div>
+  </nav>
+
+  <!-- LANDING PAGE -->
+  <div class="page active" id="page-landing">
+    <div class="hero">
+      <div class="hero-badge">
+        <div class="live-dot"></div>
+        World's First AI Ticket Exchange
+      </div>
+
+      <h1 class="hero-title">
+        The Future of<br>
+        <span class="grad-text">Ticket Trading</span><br>
+        Is Here
+      </h1>
+
+      <p class="hero-sub">
+        Buy, sell, bid and exchange tickets at your own price. AI-powered marketplace with real-time auctions, holographic previews, and bulletproof security.
+      </p>
+
+      <div class="hero-ctas">
+        <button class="btn-hero btn-hero-primary" onclick="navigate('market')">Explore Marketplace →</button>
+        <button class="btn-hero btn-hero-outline" onclick="navigate('sell')">List Your Tickets</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-num" id="stat1">248K</div>
+          <div class="stat-label">Tickets Listed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">₹4.8Cr</div>
+          <div class="stat-label">Daily Volume</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">99.8%</div>
+          <div class="stat-label">Secure Rate</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">3,241</div>
+          <div class="stat-label">Live Auctions</div>
+        </div>
+      </div>
+
+      <div class="tickets-showcase">
+        <div class="ticket-card fade-up" onclick="navigate('detail')" style="animation-delay:0.1s">
+          <div class="ticket-card-img" style="background:linear-gradient(135deg,#1a0533,#4F46E5);">
+            <div class="ticket-overlay" style="background:linear-gradient(135deg,#4F46E5,transparent)"></div>
+            🎵
+          </div>
+          <div class="ticket-body">
+            <div class="ticket-event">Coldplay World Tour</div>
+            <div class="ticket-meta">15 JUN · DY Patil, Mumbai</div>
+            <div class="ticket-footer">
+              <div class="ticket-price">₹12,500</div>
+              <div class="ticket-badge badge-hot">HOT 🔥</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-card fade-up" onclick="navigate('detail')" style="animation-delay:0.2s">
+          <div class="ticket-card-img" style="background:linear-gradient(135deg,#0f172a,#1e3a5f);">
+            ⚽
+          </div>
+          <div class="ticket-body">
+            <div class="ticket-event">IPL Final 2025</div>
+            <div class="ticket-meta">28 MAY · Wankhede, Mumbai</div>
+            <div class="ticket-footer">
+              <div class="ticket-price">₹8,200</div>
+              <div class="ticket-badge badge-live">LIVE BID</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-card fade-up" onclick="navigate('detail')" style="animation-delay:0.3s">
+          <div class="ticket-card-img" style="background:linear-gradient(135deg,#1a0a0a,#7f1d1d);">
+            🎮
+          </div>
+          <div class="ticket-body">
+            <div class="ticket-event">ESL Pro League Finals</div>
+            <div class="ticket-meta">20 JUN · NSCI Dome, Mumbai</div>
+            <div class="ticket-footer">
+              <div class="ticket-price">₹4,999</div>
+              <div class="ticket-badge badge-bid">BIDDING</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-card fade-up" onclick="navigate('detail')" style="animation-delay:0.35s">
+          <div class="ticket-card-img" style="background:linear-gradient(135deg,#0a0a1a,#1a1a4f);">
+            🎭
+          </div>
+          <div class="ticket-body">
+            <div class="ticket-event">Netflix Comedy Fest</div>
+            <div class="ticket-meta">5 JUL · Jio World, Mumbai</div>
+            <div class="ticket-footer">
+              <div class="ticket-price">₹2,800</div>
+              <div class="ticket-badge badge-live">LIVE</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-card fade-up" onclick="navigate('detail')" style="animation-delay:0.4s">
+          <div class="ticket-card-img" style="background:linear-gradient(135deg,#0a1a0a,#14532d);">
+            🎸
+          </div>
+          <div class="ticket-body">
+            <div class="ticket-event">Arijit Singh Live</div>
+            <div class="ticket-meta">12 JUL · Palace Grounds, Bengaluru</div>
+            <div class="ticket-footer">
+              <div class="ticket-price">₹6,500</div>
+              <div class="ticket-badge badge-hot">HOT 🔥</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-card fade-up" onclick="navigate('detail')" style="animation-delay:0.45s">
+          <div class="ticket-card-img" style="background:linear-gradient(135deg,#1a0a1a,#6b21a8);">
+            🏆
+          </div>
+          <div class="ticket-body">
+            <div class="ticket-event">F1 Grand Prix India</div>
+            <div class="ticket-meta">18 SEP · Hyderabad Circuit</div>
+            <div class="ticket-footer">
+              <div class="ticket-price">₹24,000</div>
+              <div class="ticket-badge badge-bid">BIDDING</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI FEATURES SECTION -->
+      <div style="width:100%;max-width:900px;margin-bottom:4rem;">
+        <div style="text-align:center;margin-bottom:2rem;">
+          <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Powered by AI</div>
+          <h2 style="font-size:28px;font-weight:800;letter-spacing:-0.5px;">Everything you need, nothing you don't</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <div style="background:var(--glass);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;">
+            <div style="font-size:28px;margin-bottom:12px;">🤖</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:6px;">AI Price Engine</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Real-time market analysis predicts optimal pricing for maximum returns on your tickets.</div>
+          </div>
+          <div style="background:var(--glass);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;">
+            <div style="font-size:28px;margin-bottom:12px;">🛡️</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:6px;">Fraud Shield</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Blockchain-verified tickets with AI fraud detection. Every transaction is 100% protected.</div>
+          </div>
+          <div style="background:var(--glass);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;">
+            <div style="font-size:28px;margin-bottom:12px;">⚡</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:6px;">Instant Escrow</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Funds held securely until both parties confirm. Zero-risk transactions every time.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKETPLACE PAGE -->
+  <div class="page" id="page-market">
+    <div class="page-header">
+      <div class="page-title">Live Marketplace</div>
+      <div class="page-sub">3,241 active listings · 128 live auctions right now</div>
+    </div>
+
+    <div class="market-layout">
+      <div class="filters-sidebar">
+        <div class="filter-section">
+          <div class="filter-title">Search</div>
+          <input class="search-input" placeholder="Artist, team, venue..." type="text" oninput="filterMarket(this.value)">
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Category</div>
+          <div id="filter-cats">
+            <span class="filter-tag active" onclick="setCategory(this,'all')">All</span>
+            <span class="filter-tag" onclick="setCategory(this,'music')">🎵 Music</span>
+            <span class="filter-tag" onclick="setCategory(this,'sports')">⚽ Sports</span>
+            <span class="filter-tag" onclick="setCategory(this,'comedy')">🎭 Comedy</span>
+            <span class="filter-tag" onclick="setCategory(this,'esports')">🎮 Esports</span>
+            <span class="filter-tag" onclick="setCategory(this,'fashion')">👗 Fashion</span>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Price Range</div>
+          <div class="price-range">
+            <input class="price-input" placeholder="Min" type="number" id="price-min">
+            <span style="color:var(--dim);font-size:12px;">—</span>
+            <input class="price-input" placeholder="Max" type="number" id="price-max">
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Type</div>
+          <span class="filter-tag active">All</span>
+          <span class="filter-tag">Buy Now</span>
+          <span class="filter-tag">Auction</span>
+          <span class="filter-tag">Exchange</span>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">City</div>
+          <span class="filter-tag">Mumbai</span>
+          <span class="filter-tag">Delhi</span>
+          <span class="filter-tag active">Hyderabad</span>
+          <span class="filter-tag">Bengaluru</span>
+          <span class="filter-tag">Chennai</span>
+        </div>
+
+        <button class="btn-primary" style="width:100%;padding:10px;margin-top:8px;">Apply Filters</button>
+      </div>
+
+      <div class="market-grid-area">
+        <div class="market-toolbar">
+          <div class="results-count">Showing <strong id="result-count">24</strong> tickets</div>
+          <select class="sort-select">
+            <option>Sort: Recommended</option>
+            <option>Price: Low → High</option>
+            <option>Price: High → Low</option>
+            <option>Ending Soon</option>
+            <option>Most Bids</option>
+          </select>
+        </div>
+
+        <div class="market-grid" id="market-grid">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL PAGE -->
+  <div class="page" id="page-detail">
+    <div class="detail-layout">
+      <div>
+        <div class="detail-event-banner">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a0533 0%,#4F46E5 50%,#9333EA 100%);opacity:0.8"></div>
+          <div style="position:absolute;top:16px;right:16px;font-size:60px;opacity:0.2">🎵</div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(4,8,18,0.9),transparent)"></div>
+          <div class="detail-banner-text" style="position:relative;z-index:1">
+            <div style="font-size:10px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">🔴 LIVE AUCTION · 2h 14m remaining</div>
+            <h2>Coldplay Music of the Spheres World Tour</h2>
+            <div class="detail-banner-sub">📍 DY Patil Stadium, Navi Mumbai · Saturday, 15 June 2025</div>
+          </div>
+        </div>
+
+        <div class="seat-viz">
+          <h3>Select Your Seat</h3>
+          <div class="stage">Main Stage</div>
+          <div class="seats-grid" id="seats-grid"></div>
+          <div class="seat-legend">
+            <span><span class="legend-dot" style="background:rgba(79,70,229,0.5)"></span>Available</span>
+            <span><span class="legend-dot" style="background:rgba(255,255,255,0.1)"></span>Taken</span>
+            <span><span class="legend-dot" style="background:var(--cyan)"></span>Selected</span>
+          </div>
+        </div>
+
+        <div style="background:var(--glass);border:0.5px solid var(--border);border-radius:12px;padding:1.5rem;">
+          <div class="chart-title">Event Details</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1rem;">
+            <div>
+              <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Venue Capacity</div>
+              <div style="font-size:18px;font-weight:800;">55,000</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Tickets Available</div>
+              <div style="font-size:18px;font-weight:800;color:var(--green);">247</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Avg Resale Price</div>
+              <div style="font-size:18px;font-weight:800;color:var(--gold);">₹13,200</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="purchase-panel">
+          <div class="panel-title">Current Listing</div>
+          <div class="price-display">₹12,500</div>
+          <div class="price-orig">Original: ₹8,000 · Face value</div>
+
+          <div class="bid-section">
+            <div class="bid-label">⚡ Live Bids — 18 active</div>
+            <div class="bid-list" id="bid-list"></div>
+            <div class="your-bid-input">
+              <input class="bid-input-field" placeholder="₹ Your bid" type="number" id="bid-input">
+              <button class="place-bid-btn" onclick="placeBid()">Bid</button>
+            </div>
+          </div>
+
+          <button class="buy-now-btn" onclick="buyNow()">Buy Now · ₹12,500</button>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;">
+            <button style="padding:10px;background:rgba(16,185,129,0.12);border:0.5px solid rgba(16,185,129,0.3);border-radius:8px;color:var(--green);font-family:'Syne',sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;">↔ Exchange</button>
+            <button style="padding:10px;background:rgba(236,72,153,0.12);border:0.5px solid rgba(236,72,153,0.3);border-radius:8px;color:var(--pink);font-family:'Syne',sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;">♥ Wishlist</button>
+          </div>
+
+          <div class="secure-badge">🔒 Secured by TixHub Shield · Escrow Protected</div>
+
+          <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:0.5px solid var(--border);">
+            <div class="chart-title" style="margin-bottom:12px;">Price History</div>
+            <canvas id="price-chart" height="80"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SELL PAGE -->
+  <div class="page" id="page-sell">
+    <div class="sell-layout">
+      <div class="page-header" style="padding:0;margin-bottom:2rem;">
+        <div class="page-title">List Your Ticket</div>
+        <div class="page-sub">Set your own price · Instant payouts · Zero hassle</div>
+      </div>
+
+      <div class="step-indicator" id="step-indicator">
+        <div class="step">
+          <div class="step-circle current" id="sc-1">1</div>
+          <div>
+            <div class="step-name current">Event</div>
+          </div>
+        </div>
+        <div class="step-line" id="sl-1"></div>
+        <div class="step">
+          <div class="step-circle pending" id="sc-2">2</div>
+          <div><div class="step-name" id="sn-2">Details</div></div>
+        </div>
+        <div class="step-line" id="sl-2"></div>
+        <div class="step">
+          <div class="step-circle pending" id="sc-3">3</div>
+          <div><div class="step-name" id="sn-3">Pricing</div></div>
+        </div>
+        <div class="step-line" id="sl-3"></div>
+        <div class="step">
+          <div class="step-circle pending" id="sc-4">4</div>
+          <div><div class="step-name" id="sn-4">Review</div></div>
+        </div>
+      </div>
+
+      <div class="form-section" id="sell-step-1">
+        <div style="font-size:15px;font-weight:700;margin-bottom:1.5rem;">Event Information</div>
+        <label class="form-label">Event Name</label>
+        <input class="form-input" placeholder="e.g. Coldplay — Music of the Spheres Tour" type="text">
+        <div class="form-row">
+          <div>
+            <label class="form-label">Category</label>
+            <select class="form-input" style="cursor:pointer">
+              <option>🎵 Music / Concert</option>
+              <option>⚽ Sports</option>
+              <option>🎭 Comedy / Theatre</option>
+              <option>🎮 Esports</option>
+              <option>🏆 Award Shows</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">City</label>
+            <select class="form-input" style="cursor:pointer">
+              <option>Mumbai</option>
+              <option>Delhi</option>
+              <option>Hyderabad</option>
+              <option>Bengaluru</option>
+              <option>Chennai</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label class="form-label">Event Date</label>
+            <input class="form-input" type="date">
+          </div>
+          <div>
+            <label class="form-label">Venue</label>
+            <input class="form-input" placeholder="Stadium / Arena name" type="text">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" id="sell-step-2">
+        <div style="font-size:15px;font-weight:700;margin-bottom:1.5rem;">Upload Ticket</div>
+        <div class="drop-zone" onclick="simulateScan()">
+          <div class="drop-icon">📎</div>
+          <div class="drop-text">Drop ticket file or click to upload</div>
+          <div class="drop-sub">PDF, PNG, JPG supported · AI scans automatically</div>
+        </div>
+        <div id="scan-result" style="display:none;margin-top:1rem;">
+          <div style="background:rgba(16,185,129,0.08);border:0.5px solid rgba(16,185,129,0.25);border-radius:10px;padding:1rem;display:flex;gap:12px;align-items:center;">
+            <div style="font-size:24px">✅</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:3px;">AI Scan Successful</div>
+              <div style="font-size:12px;color:var(--muted);">Ticket verified · Section A · Row 12 · Seat 7 · Coldplay 2025</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:1rem;">
+          <div>
+            <label class="form-label">Section / Stand</label>
+            <input class="form-input" placeholder="e.g. Section A, Pit, VIP" type="text">
+          </div>
+          <div>
+            <label class="form-label">Row & Seat</label>
+            <input class="form-input" placeholder="e.g. Row 12, Seat 7" type="text">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" id="sell-step-3">
+        <div style="font-size:15px;font-weight:700;margin-bottom:1.5rem;">Set Your Price</div>
+        <label class="form-label">Listing Type</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.2rem;">
+          <div id="lt-buynow" onclick="setListingType('buynow')" style="padding:12px;background:rgba(79,70,229,0.15);border:1.5px solid var(--blue);border-radius:10px;text-align:center;cursor:pointer;transition:all 0.2s">
+            <div style="font-size:18px;margin-bottom:4px">💰</div>
+            <div style="font-size:11px;font-weight:700">Buy Now</div>
+          </div>
+          <div id="lt-auction" onclick="setListingType('auction')" style="padding:12px;background:var(--glass2);border:0.5px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;transition:all 0.2s">
+            <div style="font-size:18px;margin-bottom:4px">⚡</div>
+            <div style="font-size:11px;font-weight:700">Auction</div>
+          </div>
+          <div id="lt-exchange" onclick="setListingType('exchange')" style="padding:12px;background:var(--glass2);border:0.5px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;transition:all 0.2s">
+            <div style="font-size:18px;margin-bottom:4px">↔️</div>
+            <div style="font-size:11px;font-weight:700">Exchange</div>
+          </div>
+        </div>
+
+        <label class="form-label">Your Price (₹)</label>
+        <input class="form-input" placeholder="Enter your selling price" type="number" id="sell-price-input" oninput="updateAIPanel(this.value)" style="font-size:22px;font-weight:700;letter-spacing:-0.5px">
+
+        <div class="ai-price-panel">
+          <div class="ai-icon-circle">🤖</div>
+          <div>
+            <div class="ai-label">AI Price Recommendation</div>
+            <div class="ai-price" id="ai-rec-price">₹11,200 – ₹14,500</div>
+            <div class="ai-range" id="ai-rec-text">Based on 18 similar recent sales · High demand event</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:flex-end;margin-bottom:3rem;">
+        <button class="btn-ghost" style="padding:12px 24px" onclick="prevSellStep()">← Back</button>
+        <button class="btn-primary" style="padding:12px 28px;font-size:14px" onclick="nextSellStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div class="page" id="page-dash">
+    <div class="dash-layout">
+      <div class="dash-sidebar">
+        <div class="user-avatar-section">
+          <div class="user-avatar">AK</div>
+          <div class="user-name">Abhishek K.</div>
+          <div class="user-level">⭐ PLATINUM SELLER</div>
+        </div>
+
+        <ul class="dash-nav">
+          <li class="dash-nav-item active" onclick="setDashSection(this,'overview')"><span class="dash-icon">📊</span> Overview</li>
+          <li class="dash-nav-item" onclick="setDashSection(this,'tickets')"><span class="dash-icon">🎫</span> My Tickets</li>
+          <li class="dash-nav-item" onclick="setDashSection(this,'wallet')"><span class="dash-icon">💳</span> Wallet</li>
+          <li class="dash-nav-item" onclick="setDashSection(this,'analytics')"><span class="dash-icon">📈</span> Analytics</li>
+          <li class="dash-nav-item" onclick="setDashSection(this,'notifications')"><span class="dash-icon">🔔</span> Notifications
+            <span style="margin-left:auto;background:var(--pink);color:white;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px">3</span>
+          </li>
+          <li class="dash-nav-item" onclick="setDashSection(this,'settings')"><span class="dash-icon">⚙️</span> Settings</li>
+        </ul>
+      </div>
+
+      <div class="dash-main">
+        <div class="dash-greeting">Good evening, Abhishek 👋</div>
+
+        <!-- WALLET -->
+        <div class="wallet-card">
+          <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.04)"></div>
+          <div style="position:absolute;bottom:-30px;left:40px;width:140px;height:140px;border-radius:50%;background:rgba(79,70,229,0.08)"></div>
+          <div style="position:relative;z-index:1">
+            <div class="wallet-label">Available Balance</div>
+            <div class="wallet-balance">₹ 42,850</div>
+            <div class="wallet-actions">
+              <button class="wallet-btn btn-deposit">+ Add Money</button>
+              <button class="wallet-btn btn-withdraw">Withdraw</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- METRICS -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Total Sales</div>
+            <div class="metric-value glow-cyan">₹1.2L</div>
+            <div class="metric-change change-up">▲ 24% this month</div>
+            <div class="metric-icon">💰</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Active Listings</div>
+            <div class="metric-value">7</div>
+            <div class="metric-change change-up">▲ 3 new today</div>
+            <div class="metric-icon">🎫</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Bids Received</div>
+            <div class="metric-value glow-purple">34</div>
+            <div class="metric-change change-up">▲ 8 today</div>
+            <div class="metric-icon">⚡</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Seller Rating</div>
+            <div class="metric-value glow-pink">4.9 ★</div>
+            <div class="metric-change" style="color:var(--muted)">312 reviews</div>
+            <div class="metric-icon">⭐</div>
+          </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="chart-section">
+          <div class="chart-card">
+            <div class="chart-title">Revenue — Last 7 Days</div>
+            <div class="bar-chart" id="revenue-chart"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Live Activity Feed</div>
+            <div class="activity-feed" id="activity-feed" style="background:none;border:none;padding:0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toast-icon">🎉</div>
+  <div>
+    <div class="toast-title" id="toast-title">Bid Placed!</div>
+    <div class="toast-msg" id="toast-msg">Your bid is now the highest</div>
+  </div>
+</div>
+
+<script>
+const MARKET_DATA = [
+  { event:'Coldplay World Tour', date:'15 JUN', venue:'DY Patil, Mumbai', price:12500, cat:'music', icon:'🎵', type:'auction', bg:'linear-gradient(135deg,#1a0533,#4F46E5)' },
+  { event:'IPL Final 2025', date:'28 MAY', venue:'Wankhede, Mumbai', price:8200, cat:'sports', icon:'⚽', type:'live', bg:'linear-gradient(135deg,#0f172a,#1e3a5f)' },
+  { event:'Arijit Singh Live', date:'12 JUL', venue:'Palace Grounds, Bengaluru', price:6500, cat:'music', icon:'🎸', type:'hot', bg:'linear-gradient(135deg,#0a1a0a,#14532d)' },
+  { event:'ESL Pro League', date:'20 JUN', venue:'NSCI Dome, Mumbai', price:4999, cat:'esports', icon:'🎮', type:'auction', bg:'linear-gradient(135deg,#1a0a0a,#7f1d1d)' },
+  { event:'Netflix Comedy Fest', date:'5 JUL', venue:'Jio World, Mumbai', price:2800, cat:'comedy', icon:'🎭', type:'live', bg:'linear-gradient(135deg,#0a0a1a,#1a1a4f)' },
+  { event:'F1 Grand Prix India', date:'18 SEP', venue:'Hyderabad Circuit', price:24000, cat:'sports', icon:'🏆', type:'hot', bg:'linear-gradient(135deg,#1a0a1a,#6b21a8)' },
+  { event:'Shreya Ghoshal Live', date:'22 JUN', venue:'Hitex, Hyderabad', price:3200, cat:'music', icon:'🎤', type:'live', bg:'linear-gradient(135deg,#1a0a0a,#991b1b)' },
+  { event:'KKR vs MI Finals', date:'30 MAY', venue:'Eden Gardens, Kolkata', price:9500, cat:'sports', icon:'🏏', type:'auction', bg:'linear-gradient(135deg,#0a0f1a,#1e3a8a)' },
+  { event:'Sunburn Festival', date:'28 DEC', venue:'Goa', price:7800, cat:'music', icon:'🎧', type:'hot', bg:'linear-gradient(135deg,#0a1a1a,#065f46)' },
+  { event:'WWE Live India', date:'15 AUG', venue:'Indira Gandhi Arena, Delhi', price:5500, cat:'sports', icon:'🥊', type:'live', bg:'linear-gradient(135deg,#1a0a0a,#7c2d12)' },
+  { event:'Zakir Khan Comedy', date:'10 JUL', venue:'Chowdiah Hall, Bengaluru', price:1800, cat:'comedy', icon:'😂', type:'auction', bg:'linear-gradient(135deg,#0f1a0a,#365314)' },
+  { event:'Valorant Masters', date:'8 AUG', venue:'Bombay Exhibition Centre', price:3600, cat:'esports', icon:'🖥️', type:'live', bg:'linear-gradient(135deg,#0a0a1a,#4c1d95)' }
+];
+
+const BIDS = [
+  { user:'user_****2k3', amount:12500, time:'2m ago' },
+  { user:'buyer_****8f1', amount:11800, time:'5m ago' },
+  { user:'anon_****4g9', amount:11200, time:'12m ago' },
+  { user:'user_****7h2', amount:10900, time:'18m ago' },
+];
+
+let currentPage = 'landing';
+let sellStep = 1;
+let selectedSeat = null;
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-links li').forEach(l => l.classList.remove('active'));
+  const nl = document.getElementById('nav-' + page);
+  if(nl) nl.classList.add('active');
+  currentPage = page;
+  if(page === 'market') renderMarket(MARKET_DATA);
+  if(page === 'detail') { renderBids(); renderSeats(); renderPriceChart(); }
+  if(page === 'dash') { renderRevenueChart(); renderActivity(); }
+  window.scrollTo(0,0);
+}
+
+function renderMarket(data) {
+  const grid = document.getElementById('market-grid');
+  document.getElementById('result-count').textContent = data.length;
+  grid.innerHTML = data.map((t,i) => `
+    <div class="market-card fade-up" style="animation-delay:${i*0.04}s" onclick="navigate('detail')">
+      <div class="market-card-img" style="background:${t.bg}">
+        <span style="font-size:32px">${t.icon}</span>
+        ${t.type==='live'?`<div class="live-indicator"><div class="live-dot"></div>LIVE</div>`:''}
+        ${t.type==='hot'?`<div class="live-indicator" style="color:var(--pink)">🔥 HOT</div>`:''}
+      </div>
+      <div class="market-card-body">
+        <div class="mc-event">${t.event}</div>
+        <div class="mc-date">${t.date} · ${t.venue.split(',')[0]}</div>
+        <div class="mc-footer">
+          <div class="mc-price">₹${t.price.toLocaleString('en-IN')}</div>
+          <button class="bid-btn">${t.type==='auction'?'Bid Now':'Buy'}</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+let activeCategory = 'all';
+function setCategory(el, cat) {
+  document.querySelectorAll('#filter-cats .filter-tag').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  activeCategory = cat;
+  const filtered = cat === 'all' ? MARKET_DATA : MARKET_DATA.filter(t=>t.cat===cat);
+  renderMarket(filtered);
+}
+
+function filterMarket(q) {
+  const filtered = MARKET_DATA.filter(t =>
+    t.event.toLowerCase().includes(q.toLowerCase()) ||
+    t.venue.toLowerCase().includes(q.toLowerCase())
+  );
+  renderMarket(filtered);
+}
+
+function renderBids() {
+  const list = document.getElementById('bid-list');
+  list.innerHTML = BIDS.map((b,i) => `
+    <div class="bid-row" style="animation:fadeUp 0.3s ease ${i*0.08}s both">
+      <span class="bid-user">${b.user}</span>
+      <span class="bid-amount">₹${b.amount.toLocaleString('en-IN')}</span>
+      <span class="bid-time">${b.time}</span>
+    </div>
+  `).join('');
+}
+
+function placeBid() {
+  const input = document.getElementById('bid-input');
+  const val = parseInt(input.value);
+  if(!val || val <= 12500) {
+    showToast('⚠️','Bid Too Low','Must exceed current price of ₹12,500');
+    return;
+  }
+  BIDS.unshift({ user:'you_****current', amount:val, time:'just now' });
+  renderBids();
+  input.value = '';
+  showToast('⚡','Bid Placed!', `₹${val.toLocaleString('en-IN')} — You're winning!`);
+}
+
+function buyNow() {
+  showToast('🎉','Purchase Initiated!','Escrow secured. Redirecting to payment...');
+}
+
+function renderSeats() {
+  const grid = document.getElementById('seats-grid');
+  const taken = [2,5,8,11,15,19,22,27,30,33,38,42,46,51,55,58,61];
+  let html = '';
+  for(let i=0; i<70; i++) {
+    const t = taken.includes(i);
+    html += `<div class="seat ${t?'taken':'available'}" id="seat-${i}" onclick="selectSeat(${i},${t})"></div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function selectSeat(i, taken) {
+  if(taken) return;
+  if(selectedSeat !== null) document.getElementById('seat-'+selectedSeat)?.classList.remove('selected');
+  if(selectedSeat === i) { selectedSeat = null; return; }
+  selectedSeat = i;
+  document.getElementById('seat-'+i).classList.add('selected');
+  showToast('🎫','Seat Selected!',`Row ${Math.floor(i/10)+1}, Seat ${(i%10)+1}`);
+}
+
+function renderPriceChart() {
+  const canvas = document.getElementById('price-chart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth || 300;
+  canvas.height = 80;
+  const prices = [9000,9800,10200,11000,10700,11800,12500];
+  const max = Math.max(...prices), min = Math.min(...prices);
+  const w = canvas.width, h = canvas.height;
+  const pts = prices.map((p,i) => ({
+    x: (i/(prices.length-1))*w,
+    y: h - ((p-min)/(max-min))*(h-16)-8
+  }));
+  ctx.clearRect(0,0,w,h);
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,'rgba(34,211,238,0.2)');
+  grad.addColorStop(1,'rgba(34,211,238,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle='#22D3EE'; ctx.lineWidth=2; ctx.stroke();
+}
+
+const REVENUE = [8200,12400,9800,15600,11200,18900,22100];
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const COLORS = ['#4F46E5','#9333EA','#22D3EE','#4F46E5','#9333EA','#22D3EE','#EC4899'];
+
+function renderRevenueChart() {
+  const chart = document.getElementById('revenue-chart');
+  const maxV = Math.max(...REVENUE);
+  chart.innerHTML = REVENUE.map((v,i) => `
+    <div class="bar-item">
+      <div class="bar" style="height:${Math.round((v/maxV)*120)}px;background:${COLORS[i]};opacity:0.8"></div>
+      <div class="bar-label">${DAYS[i]}</div>
+    </div>
+  `).join('');
+}
+
+const ACTIVITIES = [
+  { icon:'💰', bg:'rgba(16,185,129,0.15)', text:'Ticket sold — Coldplay GA', time:'2m ago', amount:'+₹12,500' },
+  { icon:'⚡', bg:'rgba(245,158,11,0.15)', text:'New bid on IPL Final ticket', time:'8m ago', amount:'₹8,200' },
+  { icon:'🎫', bg:'rgba(79,70,229,0.15)', text:'Listing approved — Arijit Singh', time:'1h ago', amount:'₹6,500' },
+  { icon:'🔔', bg:'rgba(236,72,153,0.15)', text:'Price alert: F1 tickets trending', time:'2h ago', amount:'₹24,000' },
+];
+
+function renderActivity() {
+  const feed = document.getElementById('activity-feed');
+  feed.innerHTML = ACTIVITIES.map(a => `
+    <div class="activity-item">
+      <div class="act-icon" style="background:${a.bg}">${a.icon}</div>
+      <div class="act-body">
+        <div class="act-text">${a.text}</div>
+        <div class="act-time">${a.time}</div>
+      </div>
+      <div class="act-amount">${a.amount}</div>
+    </div>
+  `).join('');
+}
+
+function setDashSection(el, section) {
+  document.querySelectorAll('.dash-nav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  showToast('📊',section.charAt(0).toUpperCase()+section.slice(1),'Section loaded');
+}
+
+let currentSellStep = 1;
+function nextSellStep() {
+  if(currentSellStep < 4) {
+    currentSellStep++;
+    updateStepUI();
+    if(currentSellStep === 2) document.getElementById('scan-result').style.display = 'none';
+    showToast('✅','Step '+(currentSellStep-1)+' Complete','Moving to next step...');
+  } else {
+    showToast('🎉','Listing Published!','Your ticket is now live on TixHub');
+    setTimeout(()=>navigate('market'),1500);
+  }
+}
+
+function prevSellStep() {
+  if(currentSellStep > 1) { currentSellStep--; updateStepUI(); }
+}
+
+function updateStepUI() {
+  for(let i=1;i<=4;i++) {
+    const sc = document.getElementById('sc-'+i);
+    const sn = document.getElementById('sn-'+i);
+    if(!sc) continue;
+    if(i < currentSellStep) { sc.className='step-circle done'; sc.textContent='✓'; }
+    else if(i === currentSellStep) { sc.className='step-circle current'; sc.textContent=i; if(sn){sn.className='step-name current';} }
+    else { sc.className='step-circle pending'; sc.textContent=i; if(sn){sn.className='step-name';} }
+    if(i<4) { const sl=document.getElementById('sl-'+i); if(sl) sl.className='step-line'+(i<currentSellStep?' done':''); }
+  }
+}
+
+function simulateScan() {
+  showToast('🤖','AI Scanning...','Analyzing ticket details');
+  setTimeout(()=>{
+    document.getElementById('scan-result').style.display='block';
+    showToast('✅','Ticket Verified!','AI detected valid ticket data');
+  },1500);
+}
+
+let listingType = 'buynow';
+function setListingType(t) {
+  listingType = t;
+  ['buynow','auction','exchange'].forEach(type=>{
+    const el = document.getElementById('lt-'+type);
+    if(el) {
+      el.style.background = type===t ? 'rgba(79,70,229,0.15)':'var(--glass2)';
+      el.style.borderWidth = type===t ? '1.5px':'0.5px';
+      el.style.borderColor = type===t ? 'var(--blue)':'var(--border)';
+    }
+  });
+}
+
+function updateAIPanel(val) {
+  const p = parseInt(val) || 0;
+  const low = Math.round(p * 0.85), high = Math.round(p * 1.18);
+  document.getElementById('ai-rec-price').textContent = `₹${low.toLocaleString('en-IN')} – ₹${high.toLocaleString('en-IN')}`;
+  const rating = p > 10000 ? 'Premium pricing · Good margin' : p > 5000 ? 'Competitive price · Likely to sell fast' : 'Low price · Near face value';
+  document.getElementById('ai-rec-text').textContent = rating + ' · Based on 18 similar sales';
+}
+
+function showToast(icon, title, msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 3500);
+}
+
+// BACKGROUND CANVAS
+function initBgCanvas() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = Array.from({length:60},()=>({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    r: Math.random()*1.5+0.3,
+    vx: (Math.random()-0.5)*0.3,
+    vy: (Math.random()-0.5)*0.3,
+    alpha: Math.random()*0.5+0.1,
+    color: ['#4F46E5','#9333EA','#22D3EE','#EC4899'][Math.floor(Math.random()*4)]
+  }));
+
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0;
+      if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.fill();
+    });
+    ctx.globalAlpha = 0.015;
+    particles.forEach((p,i)=>{
+      particles.slice(i+1).forEach(q=>{
+        const d = Math.hypot(p.x-q.x,p.y-q.y);
+        if(d<120){
+          ctx.beginPath();
+          ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle=p.color; ctx.lineWidth=0.5;
+          ctx.globalAlpha=(1-d/120)*0.08; ctx.stroke();
+        }
+      });
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  window.addEventListener('resize',()=>{
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  });
+}
+
+// LIVE BID UPDATES SIMULATION
+setInterval(()=>{
+  if(currentPage==='detail'){
+    const newAmt = BIDS[0].amount + Math.floor(Math.random()*200+100);
+    BIDS.unshift({user:'user_****'+Math.random().toString(36).substr(2,4),amount:newAmt,time:'just now'});
+    if(BIDS.length>6) BIDS.pop();
+    renderBids();
+    document.querySelector('.price-display').textContent='₹'+newAmt.toLocaleString('en-IN');
+    document.querySelector('.buy-now-btn').textContent='Buy Now · ₹'+newAmt.toLocaleString('en-IN');
+  }
+}, 5000);
+
+// LIVE STATS ANIMATION
+let statCount = 248000;
+setInterval(()=>{
+  const el = document.getElementById('stat1');
+  if(el){ statCount += Math.floor(Math.random()*3); el.textContent=(statCount/1000).toFixed(1)+'K'; }
+},3000);
+
+initBgCanvas();
+</script>
+</html>
